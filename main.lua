@@ -103,3 +103,199 @@ end)
 
 LoadBtn.MouseEnter:Connect(function() tween(LoadBtn, {BackgroundTransparency = 0.1}) end)
 LoadBtn.MouseLeave:Connect(function() tween(LoadBtn, {BackgroundTransparency = 0}) end)
+-- TSUNAMI BRAINROT HUB COMPLETO - Rayfield UI
+local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
+
+local Window = Rayfield:CreateWindow({
+   Name = "🌊 Tsunami Brainrot Hub v6.9",
+   LoadingTitle = "Escape Tsunami Loaded",
+   LoadingSubtitle = "No Key - Full Menu",
+   ConfigurationSaving = {
+      Enabled = true,
+      FolderName = "TsunamiBrainrot",
+      FileName = "Config"
+   },
+   Discord = {
+      Enabled = false,
+      Invite = "noinvitelink",
+      RememberJoins = true
+   },
+   KeySystem = false
+})
+
+-- TABS DO CINT O
+local PlayerTab = Window:CreateTab("👤 Player", 4483362458)
+local CombatTab = Window:CreateTab("⚔️ Combat", 4483362458)
+local RenderTab = Window:CreateTab("👁️ Render", 4483362458)
+local WorldTab = Window:CreateTab("🌍 World", 4483362458)
+local TeleportTab = Window:CreateTab("📍 Teleport", 4483362458)
+
+-- 👤 PLAYER OPTIONS (todas do cinto)
+PlayerTab:CreateToggle({
+   Name = "Infinite Jump",
+   CurrentValue = false,
+   Flag = "InfiniteJump",
+   Callback = function(Value)
+      InfiniteJump = Value
+   end,
+})
+
+PlayerTab:CreateToggle({
+   Name = "Fly",
+   CurrentValue = false,
+   Flag = "Fly",
+   Callback = function(Value)
+      FlyEnabled = Value
+   end,
+})
+
+PlayerTab:CreateSlider({
+   Name = "WalkSpeed",
+   Range = {16, 500},
+   Increment = 1,
+   CurrentValue = 50,
+   Flag = "WalkSpeed",
+   Callback = function(Value)
+      WalkSpeedValue = Value
+   end,
+})
+
+PlayerTab:CreateSlider({
+   Name = "JumpPower",
+   Range = {50, 500},
+   Increment = 1,
+   CurrentValue = 50,
+   Flag = "JumpPower",
+   Callback = function(Value)
+      JumpPowerValue = Value
+   end,
+})
+
+PlayerTab:CreateToggle({
+   Name = "NoClip",
+   CurrentValue = false,
+   Flag = "NoClip",
+   Callback = function(Value)
+      NoClipEnabled = Value
+   end,
+})
+
+-- ⚔️ COMBAT OPTIONS
+CombatTab:CreateToggle({
+   Name = "AutoFarm Coins",
+   CurrentValue = false,
+   Flag = "AutoFarm",
+   Callback = function(Value)
+      AutoFarmEnabled = Value
+   end,
+})
+
+CombatTab:CreateToggle({
+   Name = "Kill Aura",
+   CurrentValue = false,
+   Flag = "KillAura",
+   Callback = function(Value)
+      KillAuraEnabled = Value
+   end,
+})
+
+CombatTab:CreateSlider({
+   Name = "Kill Aura Range",
+   Range = {10, 100},
+   Increment = 1,
+   CurrentValue = 20,
+   Flag = "KillAuraRange",
+   Callback = function(Value)
+      KillAuraRange = Value
+   end,
+})
+
+-- 👁️ RENDER OPTIONS
+RenderTab:CreateToggle({
+   Name = "ESP Players",
+   CurrentValue = false,
+   Flag = "ESP",
+   Callback = function(Value)
+      ESPEnabled = Value
+   end,
+})
+
+RenderTab:CreateToggle({
+   Name = "Fullbright",
+   CurrentValue = false,
+   Flag = "Fullbright",
+   Callback = function(Value)
+      FullbrightEnabled = Value
+   end,
+})
+
+RenderTab:CreateToggle({
+   Name = "Player Tracers",
+   CurrentValue = false,
+   Flag = "Tracers",
+   Callback = function(Value)
+      TracersEnabled = Value
+   end,
+})
+
+-- 🌍 WORLD OPTIONS
+WorldTab:CreateToggle({
+   Name = "Anti Tsunami",
+   CurrentValue = false,
+   Flag = "AntiTsunami",
+   Callback = function(Value)
+      AntiTsunamiEnabled = Value
+   end,
+})
+
+WorldTab:CreateToggle({
+   Name = "Auto Safe Zone",
+   CurrentValue = false,
+   Flag = "AutoSafeZone",
+   Callback = function(Value)
+      AutoSafeZoneEnabled = Value
+   end,
+})
+
+-- 📍 TELEPORT OPTIONS (Safe Zones)
+TeleportTab:CreateButton({
+   Name = "Safe Zone 1",
+   Callback = function()
+      game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(-50, 50, -50)
+   end,
+})
+
+TeleportTab:CreateButton({
+   Name = "Safe Zone 2",
+   Callback = function()
+      game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(100, 100, 100)
+   end,
+})
+
+TeleportTab:CreateButton({
+   Name = "Heliport",
+   Callback = function()
+      game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(0, 200, 0)
+   end,
+})
+
+TeleportTab:CreateButton({
+   Name = "Server Hop",
+   Callback = function()
+      loadstring(game:HttpGet("https://raw.githubusercontent.com/RegularVynixu/Utilities/main/ModuleScripts/ServerHop.lua"))()
+   end,
+})
+
+-- NOTIFICATION
+Rayfield:Notify({
+   Title = "🌊 Tsunami Brainrot Hub",
+   Content = "Loaded! No Key System ✓",
+   Duration = 5.0,
+   Image = 4483362458
+})
+
+print("🌊 Tsunami 
+Brainrot Hub - Painel completo carregado!")
+    -- TSUNAMI BRAINROT HUB - EXTRATO DO j.load_script() SEM KEY
+local Players = game:GetService("Players")
+local RunService
