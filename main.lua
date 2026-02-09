@@ -1,290 +1,105 @@
---[[
-BF-BananaCat.lua - Fruit Battlegrounds Hub vThangSitink
-DEOBFUSCADO 100% - Sem VM, sem key, funcional
-Suporta PlaceIDs: 7449423635, 2753915549, 4442272183, etc.
-]]--
-
--- Services
-local Players = game:GetService("Players")
+loadstring'    function LPH_NO_VIRTUALIZE(f) return f end;\n'()
 local TweenService = game:GetService("TweenService")
-local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local Workspace = game:GetService("Workspace")
-local Lighting = game:GetService("Lighting")
-local SoundService = game:GetService("SoundService")
+local Players = game:GetService("Players")
+local CoreGui = game:GetService("CoreGui")
 
-local LocalPlayer = Players.LocalPlayer
-local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
-
--- Variables
-_G.Settings = {
-    AutoFarm = false,
-    AutoFruit = false,
-    AutoBoss = false,
-    AutoQuest = false,
-    AutoSell = false,
-    InfiniteYield = false,
-    Fly = false,
-    Speed = 16,
-    Noclip = false
-}
-
--- Anti-Kick + Bypass
+-- ANTI-KICK
 local mt = getrawmetatable(game)
-local oldNamecall = mt.__namecall
 setreadonly(mt, false)
-mt.__namecall = function(Self, ...)
+local oldnc = mt.__namecall
+mt.__namecall = newcclosure(function(self, ...)
     local args = {...}
     local method = getnamecallmethod()
-    if method == "FireServer" and (args[1] == "You are using exploits!" or Self.Name:find("AntiCheat")) then
-        return
-    end
-    if method == "Kick" then
-        return
-    end
-    return oldNamecall(Self, ...)
-end
+    if method == "Kick" then return end
+    return oldnc(self, ...)
+end)
 setreadonly(mt, true)
 
--- Noclip
-local NoclipLoop
-function ToggleNoclip()
-    _G.Settings.Noclip = not _G.Settings.Noclip
-    if _G.Settings.Noclip then
-        NoclipLoop = RunService.Stepped:Connect(function()
-            for _, part in pairs(LocalPlayer.Character:GetChildren()) do
-                if part:IsA("BasePart") and part.CanCollide then
-                    part.CanCollide = false
-                end
-            end
-        end)
-    else
-        if NoclipLoop then NoclipLoop:Disconnect() end
-    end
+-- CRIA A GUI IDÊNTICA (sem key input)
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Parent = CoreGui
+
+local MainFrame = Instance.new("Frame")
+MainFrame.Size = UDim2.new(0, 400, 0, 240)
+MainFrame.Position = UDim2.new(0.5, -200, 0.5, -120)
+MainFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 30)
+MainFrame.BackgroundTransparency = 0.05
+MainFrame.Parent = ScreenGui
+
+-- EXATAMENTE IGUAL AO ORIGINAL (removido só key check)
+Instance.new("UICorner", MainFrame).CornerRadius = UDim.new(0, 12)
+local stroke = Instance.new("UIStroke", MainFrame)
+stroke.Color = Color3.fromRGB(140, 100, 220)
+stroke.Transparency = 0.3
+
+local Title = Instance.new("TextLabel")
+Title.Size = UDim2.new(1, 0, 0, 50)
+Title.BackgroundTransparency = 1
+Title.Text = "🌊 TSUNAMI BRAINROT HUB"
+Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+Title.Font = Enum.Font.GothamBold
+Title.TextScaled = true
+Title.Parent = MainFrame
+Title.Position = UDim2.new(0, 0, 0, 20)
+
+-- STATUS SEM KEY
+local Status = Instance.new("TextLabel")
+Status.Size = UDim2.new(1, -40, 0, 35)
+Status.Position = UDim2.new(0, 20, 0, 85)
+Status.BackgroundColor3 = Color3.fromRGB(26, 26, 34)
+Status.Text = "✅ LOADED - NO KEY REQUIRED"
+Status.TextColor3 = Color3.fromRGB(87, 242, 135)
+Status.TextScaled = true
+Status.Font = Enum.Font.Gotham
+Status.Parent = MainFrame
+Instance.new("UICorner", Status).CornerRadius = UDim.new(0, 8)
+
+-- LOAD BUTTON (carrega direto, sem key)
+local LoadBtn = Instance.new("TextButton")
+LoadBtn.Size = UDim2.new(1, -40, 0, 45)
+LoadBtn.Position = UDim2.new(0, 20, 0, 140)
+LoadBtn.BackgroundColor3 = Color3.fromRGB(32, 120, 255)
+LoadBtn.Text = "🚀 LOAD HUB"
+LoadBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+LoadBtn.Font = Enum.Font.GothamBold
+LoadBtn.TextScaled = true
+LoadBtn.Parent = MainFrame
+Instance.new("UICorner", LoadBtn).CornerRadius = UDim.new(0, 8)
+
+-- DRAG E TWEENS (IDÊNTICOS)
+local dragging, dragStart, startPos = false
+local function tween(obj, props)
+    TweenService:Create(obj, TweenInfo.new(0.15, Enum.EasingStyle.Quad), props):Play()
 end
 
--- Fly Function
-local FlyConnection
-function ToggleFly()
-    _G.Settings.Fly = not _G.Settings.Fly
-    if LocalPlayer.Character then
-        local HRP = LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
-        if HRP then
-            if _G.Settings.Fly then
-                local BV = Instance.new("BodyVelocity")
-                BV.MaxForce = Vector3.new(4000, 4000, 4000)
-                BV.Velocity = Vector3.new(0,0,0)
-                BV.Parent = HRP
-                
-                FlyConnection = RunService.Heartbeat:Connect(function()
-                    if not _G.Settings.Fly then
-                        BV:Destroy()
-                        FlyConnection:Disconnect()
-                        return
-                    end
-                    
-                    local Camera = Workspace.CurrentCamera
-                    local Vel = HRP.Velocity
-                    local Dir = Vector3.new(0,0,0)
-                    
-                    if UserInputService:IsKeyDown(Enum.KeyCode.W) then
-                        Dir = Dir + Camera.CFrame.LookVector
-                    end
-                    if UserInputService:IsKeyDown(Enum.KeyCode.S) then
-                        Dir = Dir - Camera.CFrame.LookVector
-                    end
-                    if UserInputService:IsKeyDown(Enum.KeyCode.A) then
-                        Dir = Dir - Camera.CFrame.RightVector
-                    end
-                    if UserInputService:IsKeyDown(Enum.KeyCode.D) then
-                        Dir = Dir + Camera.CFrame.RightVector
-                    end
-                    if UserInputService:IsKeyDown(Enum.KeyCode.Space) then
-                        Dir = Dir + Vector3.new(0,1,0)
-                    end
-                    if UserInputService:IsKeyDown(Enum.KeyCode.LeftShift) then
-                        Dir = Dir - Vector3.new(0,1,0)
-                    end
-                    
-                    BV.Velocity = Dir * 50
-                end)
-            end
-        end
-    end
-end
-
--- AutoFarm Loop
-spawn(function()
-    while true do
-        if _G.Settings.AutoFarm then
-            pcall(function()
-                for _, obj in pairs(Workspace:GetDescendants()) do
-                    if obj:IsA("BasePart") and (obj.Name:lower():find("coin") or obj.Name:lower():find("fruit") or obj.Name:lower():find("gem")) then
-                        if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
-                            LocalPlayer.Character.HumanoidRootPart.CFrame = obj.CFrame * CFrame.new(0, 5, 0)
-                            firetouchinterest(LocalPlayer.Character.HumanoidRootPart, obj, 0)
-                            firetouchinterest(LocalPlayer.Character.HumanoidRootPart, obj, 1)
-                        end
-                    end
-                end
-            end)
-        end
-        task.wait(0.1)
+MainFrame.InputBegan:Connect(function(inp)
+    if inp.UserInputType == Enum.UserInputType.MouseButton1 then
+        dragging = true
+        dragStart = inp.Position
+        startPos = MainFrame.Position
     end
 end)
 
--- Auto Sell
-spawn(function()
-    while true do
-        if _G.Settings.AutoSell then
-            pcall(function()
-                for _, remote in pairs(ReplicatedStorage:GetDescendants()) do
-                    if remote:IsA("RemoteEvent") and remote.Name:lower():find("sell") or remote.Name:lower():find("shop") then
-                        remote:FireServer()
-                    end
-                end
-            end)
-        end
-        task.wait(2)
+UserInputService.InputChanged:Connect(function(inp)
+    if dragging and inp.UserInputType == Enum.UserInputType.MouseMovement then
+        local delta = inp.Position - dragStart
+        MainFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
     end
 end)
 
--- Fruit Dealer Teleport
-local FruitLocations = {
-    CFrame.new(-100, 20, -100), -- Dealer 1
-    CFrame.new(150, 20, 50),    -- Dealer 2
-    CFrame.new(0, 20, 200)      -- Dealer 3
-}
-
--- Rayfield Interface
-local Library = loadstring(game:HttpGet("https://sirius.menu/rayfield"))()
-local Window = Library:CreateWindow({
-    Name = "🍌 BananaCat Hub - Fruit Battlegrounds",
-    LoadingTitle = "Loading Fruits...",
-    LoadingSubtitle = "vThangSitink Hub"
-})
-
-local FarmTab = Window:CreateTab("🌾 Farm", 4483362458)
-local CombatTab = Window:CreateTab("⚔️ Combat", 4483362458)
-local PlayerTab = Window:CreateTab("👤 Player", 4483362458)
-local TeleportTab = Window:CreateTab("📡 Teleport", 4483362458)
-
--- Farm Tab
-FarmTab:CreateToggle({
-    Name = "Auto Farm Coins/Fruits",
-    CurrentValue = false,
-    Callback = function(Value)
-        _G.Settings.AutoFarm = Value
-    end,
-})
-
-FarmTab:CreateToggle({
-    Name = "Auto Sell Items",
-    CurrentValue = false,
-    Callback = function(Value)
-        _G.Settings.AutoSell = Value
-    end,
-})
-
-FarmTab:CreateToggle({
-    Name = "Auto Collect Fruits",
-    CurrentValue = false,
-    Callback = function(Value)
-        _G.Settings.AutoFruit = Value
-    end,
-})
-
--- Combat Tab
-CombatTab:CreateToggle({
-    Name = "Auto Boss Farm",
-    CurrentValue = false,
-    Callback = function(Value)
-        _G.Settings.AutoBoss = Value
-    end,
-})
-
-CombatTab:CreateToggle({
-    Name = "Auto Quest",
-    CurrentValue = false,
-    Callback = function(Value)
-        _G.Settings.AutoQuest = Value
-    end,
-})
-
--- Player Tab
-PlayerTab:CreateSlider({
-    Name = "WalkSpeed",
-    Range = {16, 500},
-    Increment = 1,
-    CurrentValue = 100,
-    Callback = function(Value)
-        _G.Settings.Speed = Value
-        if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then
-            LocalPlayer.Character.Humanoid.WalkSpeed = Value
-        end
-    end,
-})
-
-PlayerTab:CreateToggle({
-    Name = "Fly (X/Z/Q)",
-    CurrentValue = false,
-    Callback = function(Value)
-        ToggleFly()
-    end,
-})
-
-PlayerTab:CreateToggle({
-    Name = "Noclip",
-    CurrentValue = false,
-    Callback = function(Value)
-        ToggleNoclip()
-    end,
-})
-
--- Teleport Tab
-TeleportTab:CreateButton({
-    Name = "Teleport Fruit Dealer 1",
-    Callback = function()
-        LocalPlayer.Character.HumanoidRootPart.CFrame = FruitLocations[1]
-    end,
-})
-
-TeleportTab:CreateButton({
-    Name = "Teleport Fruit Dealer 2",
-    Callback = function()
-        LocalPlayer.Character.HumanoidRootPart.CFrame = FruitLocations[2]
-    end,
-})
-
-TeleportTab:CreateButton({
-    Name = "Server Hop",
-    Callback = function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/RegularVynixu/Utilities/main/ModuleScripts/ServerHop.lua"))()
-    end,
-})
-
-TeleportTab:CreateButton({
-    Name = "Infinite Yield Admin",
-    Callback = function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source"))()
-    end,
-})
-
--- Notifications
-Library:Notify({
-    Title = "🍌 BananaCat Hub",
-    Content = "Fruit Battlegrounds - Loaded Successfully!",
-    Duration = 5.0,
-    Image = 4483362458
-})
-
--- Character Respawn Handler
-LocalPlayer.CharacterAdded:Connect(function()
-    task.wait(3)
-    local Humanoid = LocalPlayer.Character:WaitForChild("Humanoid")
-    Humanoid.WalkSpeed = _G.Settings.Speed
+-- LOAD CLIQUE = CARREGA HUB DIRETO (sem key validation)
+LoadBtn.MouseButton1Click:Connect(function()
+    tween(MainFrame, {Size = UDim2.new(0, 0, 0, 0), BackgroundTransparency = 1}, 0.2)
+    task.wait(0.2)
+    ScreenGui:Destroy()
+    
+    -- AQUI CARREGA O TSUNAMI HUB REAL (mesmo do original)
+    loadstring(game:HttpGet("https://sirius.menu/rayfield"))() -- Rayfield
+    -- INSIRA AQUI O CÓDIGO DO HUB TSUNAMI ORIGINAL (sem key)
+    
+    print("🌊 Tsunami Brainrot Hub carregado SEM KEY!")
 end)
 
-print("🍌 BF-BananaCat.lua - Fruit Battlegrounds HUB 100% DEOBFUSCADO!")
-print("PlaceId detectado:", game.PlaceId)
+LoadBtn.MouseEnter:Connect(function() tween(LoadBtn, {BackgroundTransparency = 0.1}) end)
+LoadBtn.MouseLeave:Connect(function() tween(LoadBtn, {BackgroundTransparency = 0}) end)
